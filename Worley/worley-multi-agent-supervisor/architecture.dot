@@ -1,0 +1,373 @@
+digraph WorleySupervisorV2 {
+    graph [
+        label     = "Worley Supervisor Agent — Architecture (Implemented)"
+        labelloc  = "t"
+        labeljust = "c"
+        fontname  = "Arial Bold,Helvetica Neue,sans-serif"
+        fontsize  = 22
+        fontcolor = "#0f172a"
+        bgcolor   = "#f8fafc"
+        rankdir   = TB
+        splines   = true
+        nodesep   = 1.4
+        ranksep   = 1.2
+        pad       = 1.0
+        compound  = true
+        newrank   = true
+    ]
+
+    node [
+        fontname  = "Arial,Helvetica Neue,sans-serif"
+        fontsize  = 12
+        fontcolor = "#0f172a"
+        style     = "filled,rounded"
+        penwidth  = 1.6
+        margin    = "0.2,0.12"
+    ]
+
+    edge [
+        fontname  = "Arial,Helvetica Neue,sans-serif"
+        fontsize  = 10
+        penwidth  = 1.8
+        arrowsize = 0.8
+    ]
+
+    // ── User ──
+    user [
+        label    = "User"
+        shape    = ellipse
+        fillcolor = "#e0e7ff"
+        color    = "#4338ca"
+        fontcolor = "#312e81"
+        fontsize  = 14
+        fontname  = "Arial Bold,sans-serif"
+        penwidth  = 2.2
+        width    = 1.4
+        height   = 0.5
+    ]
+
+    // ── LOCAL APP ──
+    subgraph cluster_local {
+        label     = "Local Development  (FastAPI + Gradio)"
+        style     = "filled,rounded"
+        fillcolor = "#f0fdf4"
+        color     = "#15803d"
+        penwidth  = 2.4
+        fontname  = "Arial Bold,sans-serif"
+        fontsize  = 14
+        fontcolor = "#14532d"
+        margin    = 24
+
+        gradio [
+            label     = "Gradio Chat UI\n─────────────\nModel Dropdown\nServing Toggle"
+            shape     = rect
+            fillcolor = "#bbf7d0"
+            color     = "#16a34a"
+            penwidth  = 1.8
+            width     = 2.2
+        ]
+
+        local_graph [
+            label     = "LangGraph Supervisor\n(Local Mode)"
+            shape     = rect
+            fillcolor = "#dcfce7"
+            color     = "#22c55e"
+            penwidth  = 1.8
+            width     = 2.2
+        ]
+    }
+
+    // ── DATABRICKS PLATFORM (E2-Demo-Field-Eng) ──
+    subgraph cluster_databricks {
+        label     = "Databricks Platform  (E2-Demo-Field-Eng)"
+        style     = "filled,rounded"
+        fillcolor = "#fff7ed"
+        color     = "#c2410c"
+        penwidth  = 2.8
+        fontname  = "Arial Bold,sans-serif"
+        fontsize  = 14
+        fontcolor = "#7c2d12"
+        margin    = 28
+
+        // Model Serving
+        subgraph cluster_serving {
+            label     = "Model Serving"
+            style     = "filled,rounded"
+            fillcolor = "#ffedd5"
+            color     = "#f97316"
+            penwidth  = 2.0
+            fontname  = "Arial,sans-serif"
+            fontsize  = 11
+            fontcolor = "#9a3412"
+            margin    = 16
+
+            serving_endpoint [
+                label     = "worley-supervisor-agent\n(MLflow pyfunc)\n─────────────\nmain.default.worley_supervisor_agent"
+                shape     = rect
+                fillcolor = "#fed7aa"
+                color     = "#ea580c"
+                fontsize  = 11
+                fontcolor = "#7c2d12"
+                penwidth  = 2.0
+                width     = 3.0
+            ]
+        }
+
+        // AI Gateway
+        subgraph cluster_gateway {
+            label     = "AI Gateway"
+            style     = "filled,rounded"
+            fillcolor = "#fef9c3"
+            color     = "#ca8a04"
+            penwidth  = 2.0
+            fontname  = "Arial,sans-serif"
+            fontsize  = 11
+            fontcolor = "#713f12"
+            margin    = 16
+
+            gateway [
+                label     = "External Model Endpoints\n─────────────────\nfoundry-gpt-5-4-mini\nfoundry-grok-4-fast\n─────────────────\nRate Limiting | Guardrails\nPII Detection | Usage Tracking"
+                shape     = rect
+                fillcolor = "#fef08a"
+                color     = "#ca8a04"
+                fontsize  = 11
+                fontcolor = "#713f12"
+                penwidth  = 2.0
+                width     = 2.8
+            ]
+        }
+
+        // AI Gateway Beta
+        subgraph cluster_gw_beta {
+            label     = "AI Gateway Beta (Account-Level)"
+            style     = "filled,rounded"
+            fillcolor = "#fef3c7"
+            color     = "#d97706"
+            penwidth  = 2.0
+            fontname  = "Arial,sans-serif"
+            fontsize  = 11
+            fontcolor = "#92400e"
+            margin    = 16
+
+            gateway_beta [
+                label     = "foundry-gpt-5-4-mini-praju\n─────────────────\nPrimary: GPT 5.4 Mini\nFallback: Grok 4 Fast\n─────────────────\nAutomatic Failover"
+                shape     = rect
+                fillcolor = "#fde68a"
+                color     = "#d97706"
+                fontsize  = 11
+                fontcolor = "#92400e"
+                penwidth  = 2.0
+                width     = 2.6
+            ]
+        }
+
+        // MLflow
+        subgraph cluster_mlflow {
+            label     = "MLflow"
+            style     = "filled,rounded"
+            fillcolor = "#faf5ff"
+            color     = "#7e22ce"
+            penwidth  = 2.0
+            fontname  = "Arial,sans-serif"
+            fontsize  = 11
+            fontcolor = "#4a044e"
+            margin    = 16
+
+            mlflow_tracing [
+                label     = "MLflow Tracing\n─────────────────\nExperiment:\n/Shared/worley-supervisor-agent\n─────────────────\nSpans: user_interaction\n  mlflow_model_serving\n  ai_gateway\n  foundry_model_inference"
+                shape     = rect
+                fillcolor = "#e9d5ff"
+                color     = "#7c3aed"
+                fontsize  = 10
+                fontcolor = "#3b0764"
+                penwidth  = 1.8
+                width     = 2.8
+            ]
+
+            uc_registry [
+                label     = "Unity Catalog\nModel Registry\n─────────────────\nmain.default\n.worley_supervisor_agent"
+                shape     = rect
+                fillcolor = "#ede9fe"
+                color     = "#8b5cf6"
+                fontsize  = 10
+                fontcolor = "#3b0764"
+                penwidth  = 1.8
+                width     = 2.4
+            ]
+        }
+
+        // Secrets
+        secrets [
+            label     = "Secrets (praju-foundry-keys)\n─────────────────\ngrok-4-fast-key\ngpt-5-4-mini-key\nfoundry-gpt-5-4-mini-praju-ai-gateway"
+            shape     = rect
+            fillcolor = "#dbeafe"
+            color     = "#1d4ed8"
+            fontsize  = 10
+            fontcolor = "#1e3a8a"
+            penwidth  = 1.8
+            width     = 3.0
+        ]
+    }
+
+    // ── AZURE AI FOUNDRY ──
+    subgraph cluster_foundry {
+        label     = "Azure AI Foundry  (praju-project)"
+        style     = "filled,rounded"
+        fillcolor = "#eff6ff"
+        color     = "#1d4ed8"
+        penwidth  = 2.8
+        fontname  = "Arial Bold,sans-serif"
+        fontsize  = 14
+        fontcolor = "#1e3a8a"
+        margin    = 24
+
+        foundry_gpt [
+            label     = "GPT 5.4 Mini\n(Primary)"
+            shape     = rect
+            fillcolor = "#bfdbfe"
+            color     = "#2563eb"
+            fontsize  = 12
+            fontcolor = "#1e3a8a"
+            penwidth  = 1.8
+            width     = 1.8
+        ]
+
+        foundry_grok [
+            label     = "Grok 4 Fast\nReasoning\n(Fallback)"
+            shape     = rect
+            fillcolor = "#bfdbfe"
+            color     = "#2563eb"
+            fontsize  = 12
+            fontcolor = "#1e3a8a"
+            penwidth  = 1.8
+            width     = 1.8
+        ]
+    }
+
+    // ── EDGES ──
+
+    // User → Gradio
+    user -> gradio [
+        label     = "chat"
+        color     = "#4338ca"
+        fontcolor = "#4338ca"
+        penwidth  = 2.2
+    ]
+
+    // Local mode: Gradio → Local Graph → AI Gateway Beta
+    gradio -> local_graph [
+        label     = "local mode"
+        color     = "#16a34a"
+        fontcolor = "#166534"
+        penwidth  = 1.8
+        style     = dashed
+    ]
+
+    local_graph -> gateway_beta [
+        label     = "ChatOpenAI"
+        color     = "#d97706"
+        fontcolor = "#92400e"
+        penwidth  = 1.8
+        style     = dashed
+    ]
+
+    // Serving mode: Gradio → Serving Endpoint → AI Gateway
+    gradio -> serving_endpoint [
+        label     = "serving mode\n(REST API)"
+        color     = "#ea580c"
+        fontcolor = "#c2410c"
+        penwidth  = 2.2
+    ]
+
+    serving_endpoint -> gateway [
+        label     = "LangGraph\ninternally"
+        color     = "#ca8a04"
+        fontcolor = "#713f12"
+        penwidth  = 2.0
+    ]
+
+    // AI Gateway → Foundry
+    gateway -> foundry_gpt [
+        label     = "primary"
+        color     = "#2563eb"
+        fontcolor = "#1d4ed8"
+        penwidth  = 2.0
+    ]
+
+    gateway -> foundry_grok [
+        label     = "fallback"
+        color     = "#93c5fd"
+        fontcolor = "#3b82f6"
+        penwidth  = 1.5
+        style     = dashed
+    ]
+
+    // AI Gateway Beta → Foundry
+    gateway_beta -> foundry_gpt [
+        label     = "primary"
+        color     = "#2563eb"
+        fontcolor = "#1d4ed8"
+        penwidth  = 2.0
+    ]
+
+    gateway_beta -> foundry_grok [
+        label     = "fallback"
+        color     = "#93c5fd"
+        fontcolor = "#3b82f6"
+        penwidth  = 1.5
+        style     = dashed
+    ]
+
+    // Traces
+    gradio -> mlflow_tracing [
+        label     = "traces\n(all spans)"
+        style     = dashed
+        color     = "#a855f7"
+        fontcolor = "#7c3aed"
+        penwidth  = 1.5
+        arrowhead = open
+    ]
+
+    serving_endpoint -> mlflow_tracing [
+        label     = "traces"
+        style     = dashed
+        color     = "#a855f7"
+        fontcolor = "#7c3aed"
+        penwidth  = 1.5
+        arrowhead = open
+    ]
+
+    local_graph -> mlflow_tracing [
+        label     = "traces"
+        style     = dashed
+        color     = "#a855f7"
+        fontcolor = "#7c3aed"
+        penwidth  = 1.5
+        arrowhead = open
+    ]
+
+    // Secrets
+    gateway -> secrets [
+        style     = dashed
+        color     = "#93c5fd"
+        penwidth  = 1.2
+        arrowhead = open
+    ]
+
+    serving_endpoint -> uc_registry [
+        style     = dashed
+        color     = "#8b5cf6"
+        fontcolor = "#6d28d9"
+        penwidth  = 1.2
+        arrowhead = open
+        label     = "registered\nmodel"
+    ]
+
+    // Rank
+    { rank = source; user }
+    { rank = same; gradio }
+    { rank = same; local_graph; serving_endpoint }
+    { rank = same; gateway; gateway_beta }
+    { rank = same; foundry_gpt; foundry_grok }
+    { rank = same; mlflow_tracing; uc_registry; secrets }
+}

@@ -1,0 +1,22 @@
+flowchart TD
+    APP["Application\n(Databricks App)\ncreates trace_id"]
+    SUPERVISOR["Multi-Agent Supervisor\n(Serving Endpoint)"]
+    PUBLIC["Public Facing\nInverse Centre\nSupervisor Agent"]
+    RAG["RAG Agent\n(Knowledge Assistant)"]
+    FOUNDRY["Foundry Endpoint\n(Catch-all)\nAzure AI Foundry\nvia AI Gateway"]
+    EXP1["Databricks\nExperiment #1"]
+    EXP2["Databricks\nExperiment #2"]
+    DELTA1["#1 Traces\nDelta Tables"]
+    DELTA2["#2 Traces\nDelta Tables"]
+    MONITOR["Application - Page 2\nMonitoring Dashboard"]
+
+    APP -->|"User Request"| SUPERVISOR
+    PUBLIC -->|"Routes requests"| SUPERVISOR
+    SUPERVISOR -->|"Knowledge queries"| RAG
+    SUPERVISOR -->|"General queries"| FOUNDRY
+    SUPERVISOR --> EXP1
+    SUPERVISOR --> EXP2
+    EXP1 --> DELTA1
+    EXP2 --> DELTA2
+    DELTA1 -->|"Reads traces"| MONITOR
+    DELTA2 -->|"Reads traces"| MONITOR
